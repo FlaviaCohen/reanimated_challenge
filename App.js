@@ -1,20 +1,45 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+import Dashboard from "./src/screens/Dashboard";
+import {
+  DASHBOARD,
+  MANU_GENIA,
+  WHATS_YOUR_NAME,
+  FLAVIA,
+} from "./src/constants/screens";
+import ManuGenia from "./src/screens/ManuGenia";
+import WhatsYourName from "./src/features/whatsyourname/screens/WhatsYourName";
+import Flavia from "./src/screens/Flavia/Index";
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const Stack = createStackNavigator();
+
+const App = () => (
+  <NavigationContainer>
+    <Stack.Navigator>
+      <Stack.Screen
+        name={DASHBOARD}
+        component={Dashboard}
+        options={{ headerTitle: "Bad UX Animation Challenge" }}
+      />
+      <Stack.Screen
+        name={MANU_GENIA}
+        component={ManuGenia}
+        options={{ headerTitle: "How Old Are You?" }}
+      />
+      <Stack.Screen
+        name={WHATS_YOUR_NAME}
+        component={WhatsYourName}
+        options={{ headerTitle: "What's your name?" }}
+      />
+      <Stack.Screen
+        name={FLAVIA}
+        component={Flavia}
+        options={{ headerTitle: "Flavia" }}
+      />
+    </Stack.Navigator>
+  </NavigationContainer>
+);
+
+export default App;
