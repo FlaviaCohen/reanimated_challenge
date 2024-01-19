@@ -54,10 +54,7 @@ export const Flavia = () => {
     <View style={styles.container}>
       <Text style={styles.label}>Please enter your age</Text>
       <View style={styles.route}>
-        <PanGestureHandler
-          onGestureEvent={handleGestureEvent}
-          onHandlerStateChange={handleGestureEvent}
-        >
+        <PanGestureHandler onGestureEvent={handleGestureEvent}>
           <Animated.View style={[styles.slider, animatedStyle]} />
         </PanGestureHandler>
       </View>
