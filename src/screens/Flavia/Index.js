@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { PanGestureHandler, State } from "react-native-gesture-handler";
+import { PanGestureHandler } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedGestureHandler,
   useAnimatedStyle,
   withSpring,
-  useDerivedValue,
 } from "react-native-reanimated";
 
-export default function Flavia() {
+export const Flavia = () => {
   const sliderWidth = 200;
   const minSliderX = 0;
   const maxSliderX = sliderWidth - 50; // Width of the slider
@@ -21,19 +20,27 @@ export default function Flavia() {
       ctx.startX = positionX.value;
     },
     onActive: (event, ctx) => {
-      let newX = ctx.startX + event.translationX;
+      positionX.value = ctx.startX + event.translationX;
 
       // Ensure the slider stays within the visible range
-      newX = Math.max(minSliderX, Math.min(newX, maxSliderX));
-
-      positionX.value = newX;
+      positionX.value = Math.max(
+        minSliderX,
+        Math.min(positionX.value, maxSliderX)
+      );
     },
-    onEnd: () => {
+    onEnd: (event) => {
       // Intentionally causing glitches in the animation
-      positionX.value = withSpring(positionX.value + 10, {
-        damping: 2,
-        stiffness: 5,
-      });
+      if (event.translationX < 0) {
+        positionX.value = withSpring(positionX.value - 20, {
+          damping: 2,
+          stiffness: 5,
+        });
+      } else {
+        positionX.value = withSpring(positionX.value + 20, {
+          damping: 2,
+          stiffness: 5,
+        });
+      }
     },
   });
 
@@ -46,33 +53,53 @@ export default function Flavia() {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Please enter your age</Text>
-      <PanGestureHandler onGestureEvent={handleGestureEvent}>
-        <Animated.View style={[styles.slider, animatedStyle]} />
-      </PanGestureHandler>
+      <View style={styles.route}>
+        <PanGestureHandler
+          onGestureEvent={handleGestureEvent}
+          onHandlerStateChange={handleGestureEvent}
+        >
+          <Animated.View style={[styles.slider, animatedStyle]} />
+        </PanGestureHandler>
+      </View>
       <Text style={styles.value}>{positionX.value}</Text>
     </View>
   );
-}
+};
+
+export default Flavia;
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "pink",
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   label: {
-    marginBottom: 10,
-    fontSize: 18,
+    marginBottom: 30,
+    fontSize: 24,
     fontWeight: "bold",
   },
+  route: {
+    borderWidth: 1,
+    borderColor: "gray",
+    width: 200,
+    height: 5,
+    backgroundColor: "gray",
+  },
   slider: {
-    width: 50,
+    width: 20,
     height: 20,
     backgroundColor: "blue",
     borderRadius: 10,
+    marginTop: 20,
+    position: "absolute",
+    top: -28,
   },
   value: {
-    marginTop: 20,
-    fontSize: 16,
+    marginTop: 40,
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "black",
   },
 });
