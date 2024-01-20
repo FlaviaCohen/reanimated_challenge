@@ -1,52 +1,64 @@
 import React from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { PanGestureHandler } from "react-native-gesture-handler";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
-  useAnimatedGestureHandler,
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
+import { ReText } from "react-native-redash";
 
 export const Flavia = () => {
   const sliderWidth = 200;
-  const minSliderX = 0;
-  const maxSliderX = sliderWidth - 50; // Width of the slider
+  const minSliderX = "0";
+  const maxSliderX = sliderWidth - 100; // Width of the slider
+  const ctx = useSharedValue("0");
 
   const positionX = useSharedValue(minSliderX);
 
-  const handleGestureEvent = useAnimatedGestureHandler({
-    onStart: (_, ctx) => {
-      ctx.startX = positionX.value;
-    },
-    onActive: (event, ctx) => {
-      positionX.value = ctx.startX + event.translationX;
-
+  const gesture = Gesture.Pan()
+    .onBegin(() => {
+      ctx.value = positionX.value;
+    })
+    .onUpdate((event) => {
+      positionX.value = Math.trunc(
+        Number(ctx.value) + event.translationX
+      ).toString();
       // Ensure the slider stays within the visible range
-      positionX.value = Math.max(
-        minSliderX,
-        Math.min(positionX.value, maxSliderX)
-      );
-    },
-    onEnd: (event) => {
-      // Intentionally causing glitches in the animation
+      positionX.value = Math.trunc(
+        Math.max(
+          Number(minSliderX),
+          Math.min(Number(positionX.value), maxSliderX)
+        )
+      ).toString();
+    })
+    .onEnd((event) => {
       if (event.translationX < 0) {
-        positionX.value = withSpring(positionX.value - 20, {
-          damping: 2,
-          stiffness: 5,
-        });
+        positionX.value = withSpring(
+          Math.trunc(Number(positionX.value) - 30).toString(),
+          {
+            mass: 1,
+            damping: 7,
+            stiffness: 200,
+            restSpeedThreshold: 72,
+          }
+        );
       } else {
-        positionX.value = withSpring(positionX.value + 20, {
-          damping: 2,
-          stiffness: 5,
-        });
+        positionX.value = withSpring(
+          Math.trunc(Number(positionX.value) + 30).toString(),
+          {
+            mass: 1,
+            damping: 7,
+            stiffness: 200,
+            restSpeedThreshold: 72,
+          }
+        );
       }
-    },
-  });
+    });
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: positionX.value }],
+      transform: [{ translateX: Number(positionX.value) }],
     };
   });
 
@@ -54,11 +66,11 @@ export const Flavia = () => {
     <View style={styles.container}>
       <Text style={styles.label}>Please enter your age</Text>
       <View style={styles.route}>
-        <PanGestureHandler onGestureEvent={handleGestureEvent}>
+        <GestureDetector gesture={gesture}>
           <Animated.View style={[styles.slider, animatedStyle]} />
-        </PanGestureHandler>
+        </GestureDetector>
       </View>
-      <Text style={styles.value}>{positionX.value}</Text>
+      <ReText text={positionX} style={styles.value} />
     </View>
   );
 };
